@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.shopperman.dao.PostDao">
+
+    <!-- insertPost -->
+    <insert id="insertPost" parameterType="com.example.shopperman.entity.Post" >
+        DECLARE
+        	SEQVALUE NUMBER;
+        BEGIN
+        	SELECT POST_ID_SEQ.NEXTVAL INTO SEQVALUE FROM DUAL;
+        	
+        	INSERT INTO POST(ID, PUBLISHER_NICKNAME, TITLE, ITEM, PRICE, DELIVERY_TIP, CONTENT)
+        	VALUES(SEQVALUE, #{publisherNickname}, #{title}, #{item}, #{price}, #{deliveryTip}, #{content});
+        	
+        	INSERT INTO LOCATION(ID, ROADNAME, ADDR, MAPX, MAPY, REQUESTER_NAME, TYPE)
+        	VALUES(SEQVALUE, #{requesterLocation.roadName}, #{requesterLocation.addr}, #{requesterLocation.mapX}, #{requesterLocation.mapY}, #{requesterLocation.requesterName}, 1);
+        	
+        	INSERT INTO LOCATION(ID, ROADNAME, MAPX, MAPY, REQUESTER_NAME, MARKET_NAME, TYPE)
+        	VALUES(SEQVALUE, #{marketLocation.roadName}, #{marketLocation.mapX}, #{marketLocation.mapY}, #{marketLocation.requesterName}, #{marketLocation.marketName}, 2);
+        END;
+    </insert>
+    
+    <resultMap id="postResultMap" type="com.example.shopperman.entity.Post">
+    	<result property="publisherNickname" column="PUBLISHER_NICKNAME" />
+    	<result property="deliveryTip" column="DELIVERY_TIP" />
+    	<result property="deliverymanNickname" column="DELIVERYMAN_NICKNAME" />
+    </resultMap>
+    
+    <select id="getPostList" resultMap="postResultMap">
+    	SELECT *
+    	FROM POST
+    	<where>
+    		<if test="currentUserNickname != null and currentUserNickname != ''">
+    			PUBLISHER_NICKNAME != #{currentUserNickname}
+    		</if>
+    	</where>
+    	ORDER BY REGDATE DESC
+    </select>
+    
+    <select id="getPostListByIdList" resultMap="postResultMap">
+    	SELECT *
+    	FROM POST
+    	WHERE ID IN
+    	<foreach collection="list" item="id" open="(" separator="," close=")">
+    		#{id}
+    	</foreach>
+    </select>
+    
+    <select id="getPost" resultMap="postResultMap">
+    	SELECT *
+    	FROM POST
+    	WHERE ID = #{id}
+    </select>
+    
+    <delete id="deletePost">
+    	DELETE POST
+    	WHERE ID = #{id}
+    </delete>
+    
+    <select id="getPublisherNicknameByPostId" resultType="String">
+    	SELECT PUBLISHER_NICKNAME
+    	FROM POST
+    	WHERE ID = #{id}
+    </select>
+    
+    <update id="setDeliverymanNickname">
+    	UPDATE POST
+    	SET
+    		DELIVERYMAN_NICKNAME = #{deliverymanNickname}
+    	WHERE ID = #{id}
+    </update>
+    
+    <select id="getDeliverymanNickname" resultType="String">
+    	SELECT DELIVERYMAN_NICKNAME
+    	FROM POST
+    	WHERE ID = #{id}
+    </select>
+    
+    <select id="getState" resultType="Integer">
+    	SELECT STATE
+    	FROM POST
+    	WHERE ID = #{id}
+    </select>
+    
+    <update id="setState">
+    	UPDATE POST
+    	SET
+	    	STATE = #{state}
+	    WHERE ID = #{id}
+    </update>
+    
+    <select id="getPrice" resultType="Integer">
+    	SELECT PRICE
+    	FROM POST
+    	WHERE ID = #{id}
+    </select>
+    
+    <select id="getDeliveryTip" resultType="Integer">
+    	SELECT DELIVERY_TIP
+    	FROM POST
+    	WHERE ID = #{id}
+    </select>
+    
+    <select id="getTitle" resultType="String">
+    	SELECT TITLE
+    	FROM POST
+    	WHERE ID = #{id}
+    </select>
+    
+    <select id="getPostListByPublisherNickname" resultMap="postResultMap">
+    	SELECT *
+    	FROM POST
+    	WHERE PUBLISHER_NICKNAME = #{nickname}
+    </select>
+    
+    <select id="getPostListByDeliverymanNickname" resultMap="postResultMap">
+    	SELECT *
+    	FROM POST
+    	WHERE DELIVERYMAN_NICKNAME = #{nickname}
+    </select>
+
+</mapper>

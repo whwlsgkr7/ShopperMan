@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.shopperman.dao.MessageDao">
+
+    <!-- insertNewMessage -->
+    <insert id="insertNewMessage" parameterType="com.example.shopperman.entity.Message" >
+        INSERT INTO MESSAGE(ID, SENDER_NICKNAME, RECIPIENT_NICKNAME, CONTENT, POST_ID)
+        VALUES(MESSAGE_ID_SEQ.NEXTVAL, #{senderNickname}, #{recipientNickname}, #{content}, #{postId})
+    </insert>
+    
+    <!-- insertMessage -->
+    <insert id="insertMessage" parameterType="com.example.shopperman.entity.Message" >
+        INSERT INTO MESSAGE(ID, SENDER_NICKNAME, RECIPIENT_NICKNAME, CONTENT, POST_ID)
+        VALUES(#{messageId}, #{senderNickname}, #{recipientNickname}, #{content}, #{postId})
+    </insert>
+    
+    <!-- getMessageIdListByUserNickname -->
+    <select id="getMessageIdListByUserNickname" resultType="Integer">
+		SELECT DISTINCT ID
+		FROM (
+			SELECT ID, REGDATE
+			FROM MESSAGE
+			WHERE SENDER_NICKNAME = #{currentUserNickname} OR RECIPIENT_NICKNAME = #{currentUserNickname}
+			ORDER BY REGDATE DESC
+		)
+    </select>
+    
+    <resultMap id="messageResultMap" type="com.example.shopperman.entity.Message">
+    	<result property="messageId" column="ID" />
+    	<result property="senderNickname" column="SENDER_NICKNAME" />
+    	<result property="recipientNickname" column="RECIPIENT_NICKNAME" />
+    	<result property="postId" column="POST_ID" />
+    	<result property="readStatus" column="READ" />
+    </resultMap>
+    
+    <!-- getMessageListById -->
+    <select id="getMessageListById" resultMap="messageResultMap">
+    	SELECT *
+    	FROM MESSAGE
+    	WHERE ID = #{messageId}
+    	ORDER BY REGDATE ASC
+    </select>
+    
+    <!-- updateReadStatusToRead -->
+    <update id="updateReadStatusToRead">
+    	UPDATE MESSAGE
+    	SET
+    		READ = 0
+    	WHERE RECIPIENT_NICKNAME = #{currentUserNickname} AND ID = #{messageId} AND READ = 1
+    </update>
+    
+    <!-- getUnreadMessageCountForAllPost -->
+    <select id="getUnreadMessageCountForAllPost" resultType="Integer">
+    	SELECT COUNT(*)
+    	FROM MESSAGE
+    	WHERE RECIPIENT_NICKNAME = #{currentUserNickname} AND READ = 1
+    </select>
+    
+    <!-- getUnreadMessageCountForPost -->
+    <select id="getUnreadMessageCountForPost" resultType="Integer">
+    	SELECT COUNT(*)
+    	FROM MESSAGE
+    	WHERE RECIPIENT_NICKNAME = #{currentUserNickname} AND ID = #{messageId} AND READ = 1
+    </select>
+    
+    <!-- getSenderNickname -->
+    <select id="getSenderNickname" resultType="String">
+    	SELECT SENDER_NICKNAME
+		FROM (
+			SELECT SENDER_NICKNAME
+			FROM MESSAGE
+			WHERE ID = #{messageId} AND RECIPIENT_NICKNAME = #{currentUserNickname}
+		)
+		WHERE ROWNUM = 1
+    </select>
+    
+    <!-- getRecipientNickname -->
+    <select id="getRecipientNickname" resultType="String">
+    	SELECT RECIPIENT_NICKNAME
+    	FROM (
+			SELECT RECIPIENT_NICKNAME
+			FROM MESSAGE
+			WHERE ID = #{messageId} AND SENDER_NICKNAME = #{currentUserNickname}
+		)
+		WHERE ROWNUM = 1
+    </select>
+
+	<!-- getPostIdByMessageId -->
+	<select id="getPostIdByMessageId" resultType="Integer">
+		SELECT POST_ID
+		FROM (
+    		SELECT POST_ID
+    		FROM MESSAGE
+    		WHERE ID = #{messageId}
+		)
+		WHERE ROWNUM = 1
+	</select>
+	
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.shopperman.dao.MemberDao">
+
+    <!-- login -->
+    <select id="getMemberByLoginForm" resultType="com.example.shopperman.entity.Member" >
+        SELECT *
+        FROM MEMBER
+        WHERE ID = #{id} AND PWD = #{pwd}
+    </select>
+    
+    <!-- getMember -->
+    <select id="getMemberById" resultType="com.example.shopperman.entity.Member">
+    	SELECT *
+    	FROM MEMBER
+    	WHERE ID = #{id}
+    </select>
+    
+    <!-- getMemberList -->
+    <select id="getMemberList" resultType="com.example.shopperman.entity.Member">
+    	SELECT *
+    	FROM MEMBER
+    </select>
+
+    <!-- join -->
+    <insert id="insertMember" parameterType="com.example.shopperman.entity.Member" >
+        INSERT INTO
+        MEMBER(ID, PWD, NAME, NICKNAME)
+        VALUES(#{id}, #{pwd}, #{name}, #{nickname})
+    </insert>
+
+    <!-- checkIdDuplicate -->
+    <select id="getIdById" resultType="String" >
+        SELECT ID
+        FROM MEMBER
+        WHERE ID = #{id}
+    </select>
+
+    <!-- checkNicknameDuplicate -->
+    <select id="getIdByNickname" resultType="String" >
+        SELECT ID
+        FROM MEMBER
+        WHERE NICKNAME = #{nickname}
+    </select>
+    
+    <!-- getSumScore -->
+    <select id="getSumScore" resultType="Integer">
+    	SELECT SUMSCORE
+    	FROM MEMBER
+    	WHERE ID = #{id}
+    </select>
+    
+    <!-- getNumScore -->
+    <select id="getNumScore" resultType="Integer">
+    	SELECT NUMSCORE
+    	FROM MEMBER
+    	WHERE ID = #{id}
+    </select>
+    
+    <!-- setScore -->
+    <update id="setScore">
+    	UPDATE MEMBER
+    	SET
+    		SUMSCORE = #{newSumScore},
+    		NUMSCORE = #{newNumScore}
+    	WHERE ID = #{id}
+    </update>
+    
+    <!-- getPoint -->
+    <select id="getPoint" resultType="Integer">
+	    SELECT POINT
+	    FROM MEMBER
+	    WHERE ID = #{id}
+    </select>
+    
+    <!-- subtractPoint -->
+	<update id="subtractPoint">
+		UPDATE MEMBER
+		SET
+			POINT = POINT - #{point}
+		WHERE ID = #{id}
+	</update>
+
+	<!-- addPoint -->
+	<update id="addPoint">
+		UPDATE MEMBER
+		SET
+			POINT = POINT + #{point}
+		WHERE NICKNAME = #{nickname}
+	</update>
+	
+</mapper>
